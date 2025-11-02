@@ -1,3 +1,4 @@
+// components/layout/header.tsx
 "use client"
 
 import Link from "next/link"
@@ -12,12 +13,15 @@ export function Header() {
         >
           Clutch Calc
         </Link>
+
         <nav className="hidden md:flex items-center gap-8">
           <Link href="/" className="text-sm font-medium hover:text-primary transition">
             Home
           </Link>
-          <Link href="/analysis" className="text-sm font-medium hover:text-primary transition">
-            Analysis
+
+          {/* CHANGED: point to /how-it-works instead of /analysis */}
+          <Link href="/how-it-works" className="text-sm font-medium hover:text-primary transition">
+            How It Works
           </Link>
         </nav>
       </div>
