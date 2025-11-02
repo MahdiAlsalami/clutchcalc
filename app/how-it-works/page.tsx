@@ -1,38 +1,64 @@
 // app/how-it-works/page.tsx
+"use client"
+
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+
 export default function HowItWorksPage() {
+  const steps = [
+    {
+      title: "Find a pick on PrizePicks",
+      body:
+        "Start on PrizePicks and note the player, the opponent, the stat type (PTS/REB/AST), and the betting line.",
+    },
+    {
+      title: "Enter it here",
+      body:
+        "On the home page, choose the player and opponent team, select PTS/REB/AST, set the line, and pick the last 1–10 games window.",
+    },
+    {
+      title: "We fetch real game logs",
+      body:
+        "We pull official NBA box scores from the balldontlie API for the last N games versus that opponent—no fake stats.",
+    },
+    {
+      title: "See the probability",
+      body:
+        "We compute the hit rate (how many games cleared the line / total) and show charts (bar, trend, and percent).",
+    },
+    {
+      title: "Decide with context",
+      body:
+        "Use the visual trends to understand consistency and volatility before you lock a pick.",
+    },
+  ]
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-24">
-      <h1 className="text-3xl font-bold mb-6">How It Works</h1>
+    <main className="min-h-screen bg-background flex flex-col items-center px-6 py-24">
+      <div className="max-w-3xl w-full">
+        <h1 className="text-4xl font-bold mb-8 text-center">How It Works</h1>
 
-      <ol className="space-y-6">
-        <li className="rounded-xl border p-5">
-          <p className="text-sm text-muted-foreground">Step 1</p>
-          <h2 className="text-lg font-semibold mt-1">Find a pick on PrizePicks</h2>
-          <p className="mt-2 text-sm">Note the player, opponent, stat type (PTS/REB/AST) and the line.</p>
-        </li>
+        <ol className="space-y-6">
+          {steps.map((step, i) => (
+            <li key={i} className="rounded-xl border p-5 bg-card">
+              <p className="text-sm text-muted-foreground">Step {i + 1}</p>
+              <h2 className="text-lg font-semibold mt-1">{step.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed">{step.body}</p>
+            </li>
+          ))}
+        </ol>
 
-        <li className="rounded-xl border p-5">
-          <p className="text-sm text-muted-foreground">Step 2</p>
-          <h2 className="text-lg font-semibold mt-1">Enter it in Clutch Calc</h2>
-          <p className="mt-2 text-sm">Choose player and opponent, select stat type, set the line and a 1–10 game window.</p>
-        </li>
+        {/* Back to home button */}
+        <div className="mt-12 flex justify-center">
+          <Link href="/">
+            <Button variant="outline">← Back to Home</Button>
+          </Link>
+        </div>
 
-        <li className="rounded-xl border p-5">
-          <p className="text-sm text-muted-foreground">Step 3</p>
-          <h2 className="text-lg font-semibold mt-1">We fetch real game logs</h2>
-          <p className="mt-2 text-sm">We pull official NBA box score data and never use fake stats.</p>
-        </li>
-
-        <li className="rounded-xl border p-5">
-          <p className="text-sm text-muted-foreground">Step 4</p>
-          <h2 className="text-lg font-semibold mt-1">See probability & charts</h2>
-          <p className="mt-2 text-sm">We compute hit rate vs the line and show bar/line charts for context.</p>
-        </li>
-      </ol>
-
-      <p className="mt-8 text-xs text-muted-foreground">
-        Created by Mahdi Alsalami — No template or fake numbers are included.
-      </p>
+        <p className="mt-10 text-center text-xs text-muted-foreground">
+          GO LAKERS BTW LOL.
+        </p>
+      </div>
     </main>
   )
 }
