@@ -4,18 +4,19 @@ import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { motion } from "framer-motion"
 import {
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
   Cell,
+  LabelList,
 } from "recharts"
-import Link from "next/link"
-import { motion } from "framer-motion"
 
 type ChartData = { label: string; value: number; line: number }
 type AnalysisResult = {
@@ -28,6 +29,15 @@ type AnalysisResult = {
   hits: number
   pct: number
   chart: ChartData[]
+}
+
+function initialsOf(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]!.toUpperCase())
+    .join("")
 }
 
 export default function AnalysisPage() {
@@ -59,7 +69,7 @@ export default function AnalysisPage() {
         )}&line=${encodeURIComponent(line)}&window=${encodeURIComponent(window)}`
         const res = await fetch(url)
         if (!res.ok) throw new Error("Failed to fetch analysis")
-        const json = await res.json()
+        const json = (await res.json()) as AnalysisResult
         setData(json)
       } catch (err: any) {
         setError(err.message)
@@ -90,6 +100,11 @@ export default function AnalysisPage() {
     )
   }
 
+  const blurb =
+    data.pct >= 60
+      ? `🔥 ${data.player} has been hot lately against ${data.opponent}!`
+      : `❄️ ${data.player} has struggled to hit this line recently.`
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-16 px-6 bg-gradient-to-b from-[#050505] to-[#111827] text-white">
       <motion.div
@@ -104,7 +119,7 @@ export default function AnalysisPage() {
               {data.player} vs {data.opponent}
             </CardTitle>
             <p className="text-sm text-gray-400 mt-2">
-              {data.window} recent games • {data.stat.toUpperCase()} vs Line {data.line}
+              {data.window} recent games • Tracking {data.stat.toUpperCase()} vs Line {data.line}
             </p>
           </CardHeader>
 
@@ -118,17 +133,13 @@ export default function AnalysisPage() {
             >
               <p className="text-lg">
                 Hit Rate:{" "}
-                <span
-                  className={`font-bold ${
-                    data.pct >= 60 ? "text-green-400" : "text-red-400"
-                  }`}
-                >
+                <span className={`font-bold ${data.pct >= 60 ? "text-green-400" : "text-red-400"}`}>
                   {data.pct}% ({data.hits}/{data.total})
                 </span>
               </p>
             </motion.div>
 
-            {/* BEAUTIFUL BAR CHART */}
+            {/* CHART */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -136,37 +147,55 @@ export default function AnalysisPage() {
               className="w-full h-96"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.chart} barSize={40}>
-                  <XAxis dataKey="label" stroke="#aaa" tick={{ fill: "#bbb" }} />
-                  <YAxis stroke="#aaa" tick={{ fill: "#bbb" }} />
+                <BarChart data={data.chart} barSize={38} margin={{ top: 12, right: 8, left: 8, bottom: 24 }}>
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "rgba(255,255,255,.70)", fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={{ stroke: "rgba(255,255,255,.15)" }}
+                  />
+                  <YAxis
+                    tick={{ fill: "rgba(255,255,255,.70)", fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={{ stroke: "rgba(255,255,255,.15)" }}
+                  />
                   <Tooltip
+                    cursor={{ fill: "rgba(255,255,255,.06)" }}
                     contentStyle={{
-                      backgroundColor: "#111",
-                      border: "1px solid #333",
+                      background: "rgba(17,24,39,.92)",
+                      border: "1px solid rgba(255,255,255,.12)",
+                      borderRadius: 12,
                       color: "#fff",
-                      borderRadius: "8px",
                     }}
+                    itemStyle={{ color: "#fff" }}
+                    labelStyle={{ color: "rgba(255,255,255,.85)" }}
                   />
                   <ReferenceLine
                     y={data.line}
-                    label={`Line ${data.line}`}
-                    stroke="#facc15"
-                    strokeDasharray="3 3"
+                    stroke="rgba(250, 204, 21, .95)"
+                    strokeDasharray="5 5"
+                    ifOverflow="extendDomain"
                   />
                   <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                    {data.chart.map((entry, index) => (
+                    {data.chart.map((entry, idx) => (
                       <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          entry.value >= data.line
-                            ? "url(#hitGradient)"
-                            : "url(#missGradient)"
-                        }
+                        // @ts-ignore Recharts Cell typings
+                        key={`cell-${idx}`}
+                        fill={entry.value >= data.line ? "url(#hitGradient)" : "url(#missGradient)"}
                       />
                     ))}
+                    {/* Bright numbers above bars */}
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      formatter={(v: number) => Math.round(v)}
+                      fill="#e5e7eb"
+                      style={{ textShadow: "0 2px 6px rgba(0,0,0,.8)" }}
+                      className="text-xs"
+                    />
                   </Bar>
 
-                  {/* Gradient fills */}
+                  {/* Gradients */}
                   <defs>
                     <linearGradient id="hitGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#22c55e" />
@@ -181,39 +210,28 @@ export default function AnalysisPage() {
               </ResponsiveContainer>
             </motion.div>
 
-            {/* PLAYER CARD */}
+            {/* PLAYER CARD (no flicker) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 }}
-              className="mt-6 bg-gradient-to-r from-purple-600/30 to-indigo-700/30 p-6 rounded-2xl text-center border border-purple-500/30 shadow-md"
+              className="mt-6 rounded-2xl border border-white/10 bg-gradient-to-br from-[#2a1040] to-[#190b2a] p-6 shadow-lg"
             >
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                <img
-                  src={`https://nba-players-profile.vercel.app/players/${data.player
-                    .toLowerCase()
-                    .replace(" ", "_")}.png`}
-                  alt={data.player}
-                  className="w-24 h-24 rounded-full border-2 border-purple-400 object-cover shadow-lg"
-                  onError={(e) => ((e.currentTarget.src = "/default-player.png"))}
-                />
-                <div>
-                  <h2 className="text-2xl font-semibold text-white">{data.player}</h2>
-                  <p className="text-gray-400">Matchup: {data.opponent}</p>
-                  <p
-                    className={`text-sm mt-2 ${
-                      data.pct >= 60 ? "text-green-400" : "text-red-400"
-                    }`}
-                  >
-                    {data.pct >= 60
-                      ? `🔥 ${data.player} has been hot lately against ${data.opponent}!`
-                      : `❄️ ${data.player} has struggled to hit this line recently.`}
-                  </p>
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 grid place-items-center ring-1 ring-white/10">
+                  <span className="text-white/95 text-xl font-semibold tracking-wide">
+                    {initialsOf(data.player)}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-white/90 text-lg font-semibold leading-tight">{data.player}</div>
+                  <div className="text-sm text-white/60">Matchup: {data.opponent}</div>
+                  <div className={`mt-1 text-sm ${data.pct >= 60 ? "text-green-400" : "text-red-400"}`}>{blurb}</div>
                 </div>
               </div>
             </motion.div>
 
-            {/* BUTTON */}
+            {/* CTA */}
             <div className="text-center mt-8">
               <Link href="/">
                 <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-full shadow-md">
