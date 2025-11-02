@@ -1,0 +1,8 @@
+# analyzer/.gitignore
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.env
