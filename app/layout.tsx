@@ -29,7 +29,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <footer className="py-4 text-center text-gray-500 text-sm">
-          Created by Mahdi Alsalami
+          Built for PrizePicks Users!
         </footer>
       </body>
     </html>

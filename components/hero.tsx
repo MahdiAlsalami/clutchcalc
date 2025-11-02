@@ -1,7 +1,7 @@
+// components/hero.tsx
 "use client"
 
 import type React from "react"
-
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -11,37 +11,47 @@ import { Label } from "@/components/ui/label"
 
 export function Hero() {
   const router = useRouter()
-  const [player, setPlayer] = useState("LeBron James")
-  const [opponent, setOpponent] = useState("Miami Heat")
+
+  // Start blank instead of pre-filled
+  const [player, setPlayer] = useState("")
+  const [opponent, setOpponent] = useState("")
   const [stat, setStat] = useState("pts")
-  const [line, setLine] = useState("25")
+  const [line, setLine] = useState("")
   const [window, setWindow] = useState("10")
 
   const handleAnalysis = (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!player.trim() || !opponent.trim() || line === "") {
+      alert("Please fill out player, opponent, and line before analyzing.")
+      return
+    }
+
+    // clamp window between 1–10
+    const windowVal = Math.max(1, Math.min(10, Number(window) || 10))
+
     const params = new URLSearchParams({
-      player,
-      opponent,
+      player: player.trim(),
+      opponent: opponent.trim(),
       stat,
       line,
-      window,
+      window: String(windowVal),
     })
     router.push(`/analysis?${params.toString()}`)
   }
 
   return (
     <div className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16">
+      {/* Court background */}
       <svg
         className="absolute inset-0 w-full h-full opacity-5 dark:opacity-10"
         viewBox="0 0 940 500"
         preserveAspectRatio="xMidYMid slice"
       >
-        {/* Court lines */}
         <rect x="50" y="50" width="840" height="400" fill="none" stroke="currentColor" strokeWidth="2" />
         <line x1="50" y1="250" x2="890" y2="250" stroke="currentColor" strokeWidth="2" />
         <circle cx="470" cy="250" r="60" fill="none" stroke="currentColor" strokeWidth="2" />
         <circle cx="470" cy="250" r="6" fill="currentColor" />
-        {/* Three point line */}
         <path
           d="M 50 90 L 130 90 Q 130 170 90 210 L 90 290 Q 130 330 130 410 L 50 410"
           fill="none"
@@ -62,7 +72,7 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 w-full">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Text content */}
+          {/* Text */}
           <div className="text-center md:text-left">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Analyze Your{" "}
@@ -80,12 +90,12 @@ export function Hero() {
               >
                 PrizePicks
               </a>
-              , then analyze them here with Clutch Calc. Get instant insights on NBA player prop bets with precision and
+              , then analyze them here with Clutch Calc. Get instant insights on NBA player props with precision and
               style.
             </p>
           </div>
 
-          {/* Form card with glass effect */}
+          {/* Form */}
           <div className="backdrop-blur-xl bg-card/40 border border-border rounded-2xl p-8 shadow-2xl">
             <form onSubmit={handleAnalysis} className="space-y-6">
               <div className="space-y-2">
@@ -94,7 +104,7 @@ export function Hero() {
                 </Label>
                 <Input
                   id="player"
-                  placeholder="LeBron James"
+                  placeholder="Choose a player"
                   value={player}
                   onChange={(e) => setPlayer(e.target.value)}
                   className="bg-background/50 border-border"
@@ -107,7 +117,7 @@ export function Hero() {
                 </Label>
                 <Input
                   id="opponent"
-                  placeholder="Miami Heat"
+                  placeholder="Choose a team"
                   value={opponent}
                   onChange={(e) => setOpponent(e.target.value)}
                   className="bg-background/50 border-border"
@@ -126,9 +136,6 @@ export function Hero() {
                     <SelectItem value="pts">Points (PTS)</SelectItem>
                     <SelectItem value="reb">Rebounds (REB)</SelectItem>
                     <SelectItem value="ast">Assists (AST)</SelectItem>
-                    <SelectItem value="stl">Steals (STL)</SelectItem>
-                    <SelectItem value="blk">Blocks (BLK)</SelectItem>
-                    <SelectItem value="fg3m">3-Pointers (FG3M)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -141,7 +148,9 @@ export function Hero() {
                   <Input
                     id="line"
                     type="number"
-                    placeholder="25"
+                    min={0}
+                    step="0.5"
+                    placeholder="e.g. 25"
                     value={line}
                     onChange={(e) => setLine(e.target.value)}
                     className="bg-background/50 border-border"
@@ -154,6 +163,9 @@ export function Hero() {
                   <Input
                     id="window"
                     type="number"
+                    min={1}
+                    max={10}
+                    step="1"
                     placeholder="10"
                     value={window}
                     onChange={(e) => setWindow(e.target.value)}
