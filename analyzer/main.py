@@ -11,21 +11,19 @@ Stat = Literal["pts", "reb", "ast"]
 app = FastAPI(title="ClutchCalc Analyzer", version="1.0.0")
 
 # Allow calls from your Next.js dev server
+VERCEL = "https://clutchcalc-<your-subdomain>.vercel.app"  # no trailing slash
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        # add your prod site here when deployed, e.g.
-        # "https://clutchcalc.vercel.app",
+        "http://localhost:3000", "http://127.0.0.1:3000",
+        "http://localhost:3001", "http://127.0.0.1:3001",
+        VERCEL,
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 def clamp_window(n: int) -> int:
     try:
