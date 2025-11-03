@@ -25,6 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+def health():
+    return {"ok": True}
+
+
 def clamp_window(n: int) -> int:
     try:
         n = int(n)
