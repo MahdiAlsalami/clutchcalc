@@ -63,7 +63,7 @@ export default function AnalysisClient() {
       try {
         setLoading(true);
         const base =
-          process.env.NEXT_PUBLIC_ANALYZER_URL || "http://127.0.0.1:8000";
+          process.env.NEXT_PUBLIC_ANALYZER_URL ;
         const url = `${base}/analyze?player=${encodeURIComponent(
           player
         )}&opponent=${encodeURIComponent(opponent)}&stat=${encodeURIComponent(
