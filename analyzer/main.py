@@ -12,7 +12,6 @@ app = FastAPI(title="ClutchCalc Analyzer", version="1.0.0")
 
 # Allow calls from your Next.js dev server
 # Allow calls from local dev, your Render API URL, and any Vercel *.vercel.app site
-RENDER_API = "https://clutchcalc-analyzer.onrender.com"  # no trailing slash
 VERCEL_REGEX = r"https://.*\.vercel\.app$"
 
 app.add_middleware(
@@ -20,9 +19,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        RENDER_API,
-        # add your custom domain here too if you add one later, e.g.
-        # "https://clutchcalc.xyz",
+        "https://clutchcalc.vercel.app",
+        "https://clutchcalc-analyzer.onrender.com",
     ],
     allow_origin_regex=VERCEL_REGEX,   # <-- allows preview URLs
     allow_credentials=True,
